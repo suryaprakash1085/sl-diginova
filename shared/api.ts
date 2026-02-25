@@ -16,6 +16,13 @@ export interface Product {
   image: string;
   description: string;
   price: number;
+  icon?: string;
+  subtitle?: string;
+  features?: string;
+  tech?: string;
+  status?: "Active" | "Inactive" | "Draft";
+  category?: string;
+  dateAdded?: string;
 }
 
 export interface ContactMessage {

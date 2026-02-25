@@ -5,18 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Trash2, Pencil, Save, Info } from "lucide-react";
+import { Plus, Trash2, Pencil, Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
+import { ResponsiveTable, TableColumn } from "@/components/ResponsiveTable";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 
 const ABOUT_KEYS = ["company_description", "mission", "vision", "team_details"];
 
@@ -54,54 +47,130 @@ export default function AboutManagement() {
     setIsOpen(true);
   };
 
+  const handleSaveDialog = async () => {
+    handleSave();
+  };
+
+  const columns: TableColumn<{ key: string; value: string }> [] = [
+    {
+      key: "key",
+      label: "Key",
+      className: "w-[250px]",
+      render: (item) => (
+        <span className="font-mono text-sm font-semibold text-slate-900">{item.key}</span>
+      ),
+    },
+    {
+      key: "value",
+      label: "Value",
+      render: (item) => (
+        <span className="text-slate-600 text-sm whitespace-pre-wrap line-clamp-3">{item.value}</span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      className: "text-right",
+      render: (item) => (
+        <div className="flex justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-slate-400 hover:text-primary"
+            onClick={() => handleEdit(item.key, item.value)}
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-slate-400 hover:text-red-600"
+            onClick={() => handleDelete(item.key)}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const renderMobileCard = (item: { key: string; value: string }) => (
+    <div className="bg-white rounded-lg border p-4 space-y-3">
+      <div>
+        <p className="font-mono text-sm font-semibold text-slate-900">{item.key}</p>
+        <p className="text-slate-600 text-sm whitespace-pre-wrap mt-2 line-clamp-3">{item.value}</p>
+      </div>
+      <div className="flex gap-2 justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleEdit(item.key, item.value)}
+        >
+          <Pencil className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={() => handleDelete(item.key)}
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
               <Info className="w-8 h-8 text-primary" /> About Page Management
             </h2>
             <p className="text-slate-500 mt-1">Manage the company description, mission, vision, and team details.</p>
           </div>
-          
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
+
+          <ResponsiveDialog
+            open={isOpen}
+            onOpenChange={(val) => {
+              setIsOpen(val);
+              if (!val) {
+                setNewKey("");
+                setNewValue("");
+                setEditingKey(null);
+              }
+            }}
+            trigger={
+              <Button className="gap-2 w-full sm:w-auto">
                 <Plus className="w-4 h-4" /> Add Content
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl">
-              <DialogHeader>
-                <DialogTitle>{editingKey ? "Edit Content" : "Add New Content"}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>Key Name (e.g. mission, about_history)</Label>
-                  <Input 
-                    value={newKey} 
-                    onChange={(e) => setNewKey(e.target.value)} 
-                    placeholder="Enter unique key"
-                    disabled={!!editingKey}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Value / Content</Label>
-                  <Textarea 
-                    value={newValue} 
-                    onChange={(e) => setNewValue(e.target.value)} 
-                    placeholder="Enter content details"
-                    rows={6}
-                  />
-                </div>
-                <DialogFooter>
-                  <Button onClick={handleSave} className="gap-2">
-                    <Save className="w-4 h-4" /> {editingKey ? "Update" : "Save"} Content
-                  </Button>
-                </DialogFooter>
+            }
+            title={editingKey ? "Edit Content" : "Add New Content"}
+            onSave={handleSaveDialog}
+            saveLabel={editingKey ? "Update Content" : "Save Content"}
+          >
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Key Name (e.g. mission, about_history)</Label>
+                <Input
+                  value={newKey}
+                  onChange={(e) => setNewKey(e.target.value)}
+                  placeholder="Enter unique key"
+                  disabled={!!editingKey}
+                />
               </div>
-            </DialogContent>
-          </Dialog>
+              <div className="space-y-2">
+                <Label>Value / Content</Label>
+                <Textarea
+                  value={newValue}
+                  onChange={(e) => setNewValue(e.target.value)}
+                  placeholder="Enter content details"
+                  rows={6}
+                />
+              </div>
+            </div>
+          </ResponsiveDialog>
         </div>
 
         <Card>
@@ -110,41 +179,15 @@ export default function AboutManagement() {
             <CardDescription>All keys starting with 'about_' or core about keys are shown here.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[250px]">Key</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow><TableCell colSpan={3} className="text-center py-8">Loading content...</TableCell></TableRow>
-                ) : aboutSettings.length === 0 ? (
-                  <TableRow><TableCell colSpan={3} className="text-center py-8 text-slate-500">No content found. Add some using the button above.</TableCell></TableRow>
-                ) : (
-                  aboutSettings.map((s) => (
-                    <TableRow key={s.key} className="align-top hover:bg-slate-50/50">
-                      <TableCell className="font-mono text-sm font-semibold text-slate-900">{s.key}</TableCell>
-                      <TableCell className="text-slate-600 text-sm whitespace-pre-wrap max-w-xl">
-                        {s.value}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-primary" onClick={() => handleEdit(s.key, s.value)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-600" onClick={() => handleDelete(s.key)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <ResponsiveTable
+              columns={columns}
+              data={aboutSettings}
+              keyField="key"
+              isLoading={isLoading}
+              isEmpty={aboutSettings.length === 0}
+              emptyMessage="No content found. Add some using the button above."
+              renderMobileCard={renderMobileCard}
+            />
           </CardContent>
         </Card>
       </div>
