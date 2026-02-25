@@ -32,9 +32,7 @@ export default function MessagesManagement() {
           <span className="text-slate-600 flex items-center gap-2">
             <Mail className="w-3 h-3 text-slate-400" /> {msg.email}
           </span>
-          <span className="text-slate-600 flex items-center gap-2">
-            <Phone className="w-3 h-3 text-slate-400" /> {msg.phone}
-          </span>
+          
         </div>
       ),
     },

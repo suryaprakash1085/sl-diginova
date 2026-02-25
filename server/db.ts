@@ -23,17 +23,26 @@ db.users.push({
 
 // Seed Products
 db.products.push({
-  id: "p1",
-  name: "Premium Headphones",
-  image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=500",
-  description: "High-quality wireless noise-canceling headphones.",
-  price: 299,
+  id: "1",
+  icon: "car",
+  name: "AutoX",
+  subtitle: "Car Service & Workshop Management Platform",
+  description: "AutoX is a platform that helps manage car service bookings, workshop operations and customer records.",
+  features: "Online Booking\nInventory Management\nService Tracking",
+  tech: "Node.js, React.js, MySQL",
+  status: "Active",
+  category: "Web Application",
+  dateAdded: "2026-02-23T09:34:06.000Z",
+  image: "autox.jpg"
 }, {
   id: "p2",
   name: "Smart Watch",
   image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500",
   description: "Stay connected and track your fitness with our smart watch.",
   price: 199,
+  status: "Active",
+  category: "Wearables",
+  dateAdded: new Date().toISOString()
 });
 
 // Seed Contact Messages
@@ -41,7 +50,6 @@ db.messages.push({
   id: "m1",
   name: "John Smith",
   email: "john@example.com",
-  phone: "123-456-7890",
   message: "I'm interested in your premium headphones. Do you have any discounts available?",
   date: new Date().toISOString(),
 });

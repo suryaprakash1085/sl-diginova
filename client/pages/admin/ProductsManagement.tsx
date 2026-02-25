@@ -2,7 +2,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Product } from "@shared/api";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Package, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Image as ImageIcon, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ResponsiveTable, TableColumn } from "@/components/ResponsiveTable";
 import { ResponsiveDialog } from "@/components/ResponsiveDialog";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProductsManagement() {
   const queryClient = useQueryClient();
@@ -19,16 +20,12 @@ export default function ProductsManagement() {
 
   // Form state
   const [name, setName] = useState("");
-  const [image, setImage] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [icon, setIcon] = useState("");
   const [subtitle, setSubtitle] = useState("");
+  const [description, setDescription] = useState("");
   const [features, setFeatures] = useState("");
   const [tech, setTech] = useState("");
   const [status, setStatus] = useState<"Active" | "Inactive" | "Draft">("Active");
-  const [category, setCategory] = useState("");
-  const [dateAdded, setDateAdded] = useState("");
+  const [image, setImage] = useState("");
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["products"],
@@ -84,49 +81,52 @@ export default function ProductsManagement() {
 
   const resetForm = () => {
     setName("");
-    setImage("");
-    setDescription("");
-    setPrice("");
-    setIcon("");
     setSubtitle("");
+    setDescription("");
     setFeatures("");
     setTech("");
     setStatus("Active");
-    setCategory("");
-    setDateAdded("");
+    setImage("");
     setEditingProduct(null);
   };
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setName(product.name);
-    setImage(product.image);
-    setDescription(product.description);
-    setPrice(product.price.toString());
-    setIcon(product.icon || "");
     setSubtitle(product.subtitle || "");
+    setDescription(product.description);
     setFeatures(product.features || "");
     setTech(product.tech || "");
     setStatus(product.status || "Active");
-    setCategory(product.category || "");
-    setDateAdded(product.dateAdded || "");
+    setImage(product.image || "");
     setIsOpen(true);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async () => {
+    const currentDate = new Date().toISOString().split("T")[0];
+
     const productData: Partial<Product> = {
       name,
-      image,
-      description,
-      price: parseFloat(price),
-      icon: icon || undefined,
       subtitle: subtitle || undefined,
+      description,
       features: features || undefined,
       tech: tech || undefined,
       status,
-      category: category || undefined,
-      dateAdded: dateAdded || new Date().toISOString(),
+      image,
+      dateAdded: currentDate,
     };
+
     if (editingProduct) {
       await updateMutation.mutateAsync({ ...editingProduct, ...productData } as Product);
     } else {
@@ -151,16 +151,12 @@ export default function ProductsManagement() {
     },
     {
       key: "name",
-      label: "Product Name",
+      label: "Name",
       render: (product) => (
-        <span className="font-semibold text-slate-900">{product.name}</span>
-      ),
-    },
-    {
-      key: "price",
-      label: "Price",
-      render: (product) => (
-        <span className="text-slate-700 font-medium">${product.price.toFixed(2)}</span>
+        <div className="flex flex-col">
+          <span className="font-semibold text-slate-900">{product.name}</span>
+          <span className="text-xs text-slate-500 line-clamp-1">{product.subtitle}</span>
+        </div>
       ),
     },
     {
@@ -168,6 +164,26 @@ export default function ProductsManagement() {
       label: "Description",
       render: (product) => (
         <span className="text-slate-500 text-sm line-clamp-2">{product.description}</span>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (product) => {
+        const status = product.status || "Active";
+        const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+          Active: "default",
+          Inactive: "secondary",
+          Draft: "outline",
+        };
+        return <Badge variant={variants[status] || "default"}>{status}</Badge>;
+      },
+    },
+    {
+      key: "tech",
+      label: "Tech Stack",
+      render: (product) => (
+        <span className="text-slate-500 text-sm">{product.tech || "-"}</span>
       ),
     },
     {
@@ -212,12 +228,17 @@ export default function ProductsManagement() {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-slate-900 truncate">{product.name}</p>
-          <p className="text-slate-700 font-medium">${product.price.toFixed(2)}</p>
-          <p className="text-slate-500 text-xs line-clamp-2 mt-1">{product.description}</p>
+          <div className="flex justify-between items-start gap-2">
+            <p className="font-semibold text-slate-900 truncate">{product.name}</p>
+            <Badge variant={product.status === "Active" ? "default" : "secondary"} className="scale-75 origin-top-right">
+              {product.status || "Active"}
+            </Badge>
+          </div>
+          <p className="text-slate-500 text-xs truncate">{product.subtitle}</p>
         </div>
       </div>
-      <div className="flex gap-2 justify-end">
+      <p className="text-slate-500 text-sm line-clamp-2">{product.description}</p>
+      <div className="flex gap-2 justify-end pt-2 border-t">
         <Button
           variant="outline"
           size="sm"
@@ -268,26 +289,74 @@ export default function ProductsManagement() {
             saveLabel={editingProduct ? "Update Product" : "Create Product"}
             isLoading={createMutation.isPending || updateMutation.isPending}
           >
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Product Name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center gap-4 p-4 border-2 border-dashed rounded-xl bg-slate-50/50">
+              {image ? (
+                <div className="relative group">
+                  <img src={image} alt="Preview" className="h-32 w-32 object-cover rounded-lg border shadow-sm" />
+                  <button
+                    onClick={() => setImage("")}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price ($)</Label>
-                  <Input id="price" type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
+              ) : (
+                <div className="h-32 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 border">
+                  <ImageIcon className="w-12 h-12" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
-                <Input id="image" value={image} onChange={(e) => setImage(e.target.value)} placeholder="https://example.com/image.jpg" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} required />
+              )}
+              <div className="flex flex-col items-center gap-2">
+                <Label htmlFor="image-upload" className="cursor-pointer">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium">
+                    <Upload className="w-4 h-4" /> Upload Image
+                  </div>
+                  <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </Label>
+                <p className="text-xs text-slate-500">JPG, PNG or SVG. Max 5MB.</p>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Product Name</Label>
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subtitle">Subtitle</Label>
+                <Input id="subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="e.g. Car Service Management Platform" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={(val: any) => setStatus(val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                  <SelectItem value="Draft">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Long Description</Label>
+              <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} required />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="features">Key Features (One per line)</Label>
+              <Textarea id="features" value={features} onChange={(e) => setFeatures(e.target.value)} rows={3} placeholder="Feature 1&#10;Feature 2" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tech">Tech Stack</Label>
+              <Input id="tech" value={tech} onChange={(e) => setTech(e.target.value)} placeholder="e.g. React, Node.js, MySQL" />
+            </div>
+          </div>
           </ResponsiveDialog>
         </div>
 
