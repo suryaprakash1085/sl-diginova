@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Save, Building2, Palette, Type, Layout as LayoutIcon, Image as ImageIcon } from "lucide-react";
+import { Save, Building2, Palette, Trash2,Type, Layout as LayoutIcon, Image as ImageIcon } from "lucide-react";
 
 export default function Customization() {
   const { settings, updateSettings, isLoading } = useSettings();
@@ -52,8 +52,8 @@ export default function Customization() {
             <TabsTrigger value="company" className="gap-2"><Building2 className="w-4 h-4" /> Company</TabsTrigger>
             <TabsTrigger value="theme" className="gap-2"><Palette className="w-4 h-4" /> Theme</TabsTrigger>
             <TabsTrigger value="background" className="gap-2"><ImageIcon className="w-4 h-4" /> Background</TabsTrigger>
-            <TabsTrigger value="typography" className="gap-2"><Type className="w-4 h-4" /> Typography</TabsTrigger>
-            <TabsTrigger value="layout" className="gap-2"><LayoutIcon className="w-4 h-4" /> Layout</TabsTrigger>
+            {/* <TabsTrigger value="typography" className="gap-2"><Type className="w-4 h-4" /> Typography</TabsTrigger>
+            <TabsTrigger value="layout" className="gap-2"><LayoutIcon className="w-4 h-4" /> Layout</TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="company">
@@ -217,58 +217,6 @@ export default function Customization() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="typography">
-            <Card>
-              <CardHeader>
-                <CardTitle>Typography</CardTitle>
-                <CardDescription>Set the fonts and text styles for your app.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Font Family</Label>
-                    <Input value={localSettings.font_family || ""} onChange={(e) => handleChange("font_family", e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Font Size (px)</Label>
-                    <Input value={localSettings.font_size || ""} onChange={(e) => handleChange("font_size", e.target.value)} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="layout">
-            <Card>
-              <CardHeader>
-                <CardTitle>Layout Settings</CardTitle>
-                <CardDescription>Toggle global layout elements.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div className="space-y-0.5">
-                    <Label>Show Top Bar</Label>
-                    <p className="text-xs text-slate-500">Enable or disable the main navigation header.</p>
-                  </div>
-                  <Switch checked={localSettings.show_top_bar === "true"} onCheckedChange={(val) => handleChange("show_top_bar", val.toString())} />
-                </div>
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div className="space-y-0.5">
-                    <Label>Show Footer</Label>
-                    <p className="text-xs text-slate-500">Enable or disable the website footer.</p>
-                  </div>
-                  <Switch checked={localSettings.show_footer === "true"} onCheckedChange={(val) => handleChange("show_footer", val.toString())} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Sticky Header</Label>
-                    <p className="text-xs text-slate-500">Keep the header visible while scrolling.</p>
-                  </div>
-                  <Switch checked={localSettings.sticky_header === "true"} onCheckedChange={(val) => handleChange("sticky_header", val.toString())} />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </AdminLayout>
