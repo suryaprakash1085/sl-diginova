@@ -17,7 +17,10 @@ export default function UsersManagement() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"admin" | "user">("user");
+  const [passwordError, setPasswordError] = useState("");
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ["users"],
@@ -56,7 +59,10 @@ export default function UsersManagement() {
 
   const resetForm = () => {
     setUsername("");
+    setPassword("");
+    setConfirmPassword("");
     setRole("user");
+    setPasswordError("");
     setEditingUser(null);
   };
 
@@ -64,14 +70,34 @@ export default function UsersManagement() {
     setEditingUser(user);
     setUsername(user.username);
     setRole(user.role);
+    setPassword("");
+    setConfirmPassword("");
+    setPasswordError("");
     setIsOpen(true);
   };
 
   const handleSubmit = async () => {
+    setPasswordError("");
+
+    if (!editingUser && !password) {
+      setPasswordError("Password is required");
+      return;
+    }
+
+    if (password && password.length < 8) {
+      setPasswordError("Password must be at least 8 characters long");
+      return;
+    }
+
+    if (password && password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+
     if (editingUser) {
       toast.info("Update logic would go here.");
     } else {
-      await createMutation.mutateAsync({ username, role });
+      await createMutation.mutateAsync({ username, password, role });
     }
   };
 
@@ -223,6 +249,41 @@ export default function UsersManagement() {
                   required
                 />
               </div>
+              {!editingUser && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setPasswordError("");
+                      }}
+                      placeholder="At least 8 characters"
+                      required={!editingUser}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setPasswordError("");
+                      }}
+                      placeholder="Re-enter password"
+                      required={!editingUser}
+                    />
+                  </div>
+                  {passwordError && (
+                    <p className="text-sm text-red-600 font-medium">{passwordError}</p>
+                  )}
+                </>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select value={role} onValueChange={(val: any) => setRole(val)}>
