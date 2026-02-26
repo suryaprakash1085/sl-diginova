@@ -33,6 +33,7 @@ import {
   deleteSetting,
 } from "./routes/settings";
 import { getDashboardSummary } from "./routes/dashboard";
+import { handleFileUpload } from "./routes/upload";
 
 dotenv.config();
 
@@ -46,6 +47,9 @@ export function createServer() {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // ================= STATIC FILES =================
+  app.use("/uploads", express.static("public/uploads"));
 
   // ================= INITIALIZATION ROUTES =================
   app.post("/api/init-db", handleInitDB);
@@ -83,6 +87,9 @@ export function createServer() {
 
   // ================= DASHBOARD ROUTES =================
   app.get("/api/dashboard-summary", getDashboardSummary);
+
+  // ================= UPLOAD ROUTES =================
+  app.post("/api/upload", handleFileUpload);
 
   // ================= HEALTH CHECK =================
   app.get("/api/health", (req, res) => {

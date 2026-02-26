@@ -32,6 +32,30 @@ export default function Customization() {
     toast.success("Settings saved successfully!");
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.success) {
+          handleChange(key, json.data.url);
+          toast.success("File uploaded successfully!");
+        } else {
+          toast.error("Failed to upload file");
+        }
+      } catch (error) {
+        toast.error("Error uploading file");
+      }
+    }
+  };
+
   if (isLoading) return <AdminLayout>Loading...</AdminLayout>;
 
   return (
@@ -59,10 +83,34 @@ export default function Customization() {
           <TabsContent value="company">
             <Card>
               <CardHeader>
-                <CardTitle>Company Details</CardTitle>
-                <CardDescription>Basic information about your business.</CardDescription>
+                <CardTitle>Company Details & Identity</CardTitle>
+                <CardDescription>Basic information and brand identity for your business.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                <div className="flex flex-col md:flex-row gap-8 pb-6 border-b">
+                  <div className="space-y-4 flex-1">
+                    <Label className="text-base font-semibold">Company Logo</Label>
+                    <div className="flex items-center gap-6">
+                      <div className="h-24 w-24 rounded-xl border bg-slate-50 flex items-center justify-center overflow-hidden">
+                        {localSettings.company_logo ? (
+                          <img src={localSettings.company_logo} alt="Logo" className="max-h-full max-w-full object-contain" />
+                        ) : (
+                          <ImageIcon className="h-10 w-10 text-slate-300" />
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="logo-upload" className="cursor-pointer">
+                          <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium">
+                            <Save className="w-4 h-4 rotate-180" /> Change Logo
+                          </div>
+                          <input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, "company_logo")} />
+                        </Label>
+                        <p className="text-xs text-slate-500">Recommended size: 200x200px. PNG or SVG.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Company Name</Label>
@@ -87,16 +135,7 @@ export default function Customization() {
                   <Label>Company Address</Label>
                   <Input value={localSettings.company_address || ""} onChange={(e) => handleChange("company_address", e.target.value)} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Facebook URL</Label>
-                    <Input value={localSettings.social_facebook || ""} onChange={(e) => handleChange("social_facebook", e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Twitter URL</Label>
-                    <Input value={localSettings.social_twitter || ""} onChange={(e) => handleChange("social_twitter", e.target.value)} />
-                  </div>
-                </div>
+            
               </CardContent>
             </Card>
           </TabsContent>
@@ -180,21 +219,12 @@ export default function Customization() {
                           </div>
                         )}
                         <div className="flex gap-2">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            className="flex-grow cursor-pointer"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  handleChange("bg_image", reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
+                          <Label htmlFor="bg-upload" className="cursor-pointer">
+                            <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium">
+                              <Save className="w-4 h-4 rotate-180" /> Upload Image
+                            </div>
+                            <input id="bg-upload" type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, "bg_image")} />
+                          </Label>
                         </div>
                         <div className="relative">
                           <div className="absolute inset-0 flex items-center">

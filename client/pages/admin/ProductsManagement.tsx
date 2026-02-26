@@ -103,14 +103,27 @@ export default function ProductsManagement() {
     setIsOpen(true);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.success) {
+          setImage(json.data.url);
+          toast.success("Image uploaded successfully!");
+        } else {
+          toast.error("Failed to upload image");
+        }
+      } catch (error) {
+        toast.error("Error uploading image");
+      }
     }
   };
 

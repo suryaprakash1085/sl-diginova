@@ -45,7 +45,7 @@ export const setSetting: RequestHandler = async (req, res) => {
     const settings = Array.isArray(req.body) ? req.body : [req.body];
 
     for (const item of settings) {
-      const { key, value, page_name = "global" } = item;
+      const { key, value, page_name  } = item;
 
       if (!key) continue;
 
