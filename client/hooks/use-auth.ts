@@ -3,7 +3,7 @@ import { User, AuthResponse } from "@shared/api";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("auth_user");
+    const saved = sessionStorage.getItem("auth_user");
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -20,6 +20,7 @@ export function useAuth() {
     if (data.success) {
       // store user if needed
       setUser(data.data);
+      sessionStorage.setItem("auth_user", JSON.stringify(data.data));
       return true; // 🔥 VERY IMPORTANT
     }
 
@@ -31,7 +32,7 @@ export function useAuth() {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("auth_user");
+    sessionStorage.removeItem("auth_user");
   };
 
   return { user, login, logout, isAdmin: user?.role === "admin" };

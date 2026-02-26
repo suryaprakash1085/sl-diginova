@@ -35,7 +35,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!user || !isAdmin) {
-      navigate("/login");
+      navigate("/");
     }
   }, [user, isAdmin, navigate]);
 
@@ -87,7 +87,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 gap-3"
             onClick={() => {
               logout();
-              navigate("/login");
+              navigate("/");
             }}
           >
             <LogOut className="w-4 h-4" />
@@ -144,7 +144,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 gap-3"
             onClick={() => {
               logout();
-              navigate("/login");
+              navigate("/");
             }}
           >
             <LogOut className="w-4 h-4" />
