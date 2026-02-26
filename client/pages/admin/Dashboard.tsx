@@ -11,7 +11,8 @@ export default function Dashboard() {
     queryKey: ["dashboard-summary"],
     queryFn: async () => {
       const res = await fetch("/api/dashboard-summary");
-      return res.json();
+      const json = await res.json();
+      return json.data;
     },
   });
 

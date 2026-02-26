@@ -32,6 +32,7 @@ import {
   updateSetting,
   deleteSetting,
 } from "./routes/settings";
+import { getDashboardSummary } from "./routes/dashboard";
 
 dotenv.config();
 
@@ -79,6 +80,9 @@ export function createServer() {
   app.post("/api/settings", setSetting);
   app.put("/api/settings/:id", updateSetting);
   app.delete("/api/settings/:id", deleteSetting);
+
+  // ================= DASHBOARD ROUTES =================
+  app.get("/api/dashboard-summary", getDashboardSummary);
 
   // ================= HEALTH CHECK =================
   app.get("/api/health", (req, res) => {

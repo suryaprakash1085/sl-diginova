@@ -42,24 +42,24 @@ export const getSetting: RequestHandler = async (req, res) => {
 // POST create or update setting
 export const setSetting: RequestHandler = async (req, res) => {
   try {
-    const { key, value } = req.body;
+    const settings = Array.isArray(req.body) ? req.body : [req.body];
 
-    if (!key) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Setting key is required" });
+    for (const item of settings) {
+      const { key, value, page_name = "global" } = item;
+
+      if (!key) continue;
+
+      const existing = await db("settings").where({ key }).first();
+
+      if (existing) {
+        await db("settings").where({ key }).update({ value, page_name });
+      } else {
+        await db("settings").insert({ key, value, page_name });
+      }
     }
 
-    const existing = await db("settings").where({ key }).first();
-
-    if (existing) {
-      await db("settings").where({ key }).update({ value });
-    } else {
-      await db("settings").insert({ key, value });
-    }
-
-    const setting = await db("settings").where({ key }).first();
-    res.status(200).json({ success: true, data: setting });
+    const allSettings = await db("settings").select("*");
+    res.status(200).json({ success: true, data: allSettings });
   } catch (error) {
     console.error("Error setting value:", error);
     res.status(500).json({
@@ -74,7 +74,7 @@ export const setSetting: RequestHandler = async (req, res) => {
 export const updateSetting: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const { value } = req.body;
+    const { value, page_name, key } = req.body;
 
     const setting = await db("settings").where({ id }).first();
     if (!setting) {
@@ -83,7 +83,12 @@ export const updateSetting: RequestHandler = async (req, res) => {
         .json({ success: false, message: "Setting not found" });
     }
 
-    await db("settings").where({ id }).update({ value });
+    const updateData: any = {};
+    if (value !== undefined) updateData.value = value;
+    if (page_name !== undefined) updateData.page_name = page_name;
+    if (key !== undefined) updateData.key = key;
+
+    await db("settings").where({ id }).update(updateData);
 
     const updatedSetting = await db("settings").where({ id }).first();
     res.status(200).json({ success: true, data: updatedSetting });

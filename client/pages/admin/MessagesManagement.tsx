@@ -9,7 +9,8 @@ export default function MessagesManagement() {
     queryKey: ["messages"],
     queryFn: async () => {
       const res = await fetch("/api/messages");
-      return res.json();
+      const json = await res.json();
+      return json.data || [];
     },
   });
 

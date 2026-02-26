@@ -41,13 +41,25 @@ export const handleInitDB: RequestHandler = async (req, res) => {
     // Create settings table
     await db.schema.createTableIfNotExists("settings", (table) => {
       table.increments("id").primary();
+      table.string("page_name", 255).notNullable();
       table.string("key", 255).notNullable().unique();
       table.text("value");
       table
+      
         .timestamp("updatedAt")
         .defaultTo(db.fn.now())
         .onUpdate(db.fn.now());
     });
+
+    // Check if settings table is empty and insert defaults
+    const settingsCount = await db("settings").count("id as count").first();
+    if (Number(settingsCount?.count || 0) === 0) {
+      await db("settings").insert([
+        { page_name: "home", key: "banner_title", value: "Welcome to Our Platform" },
+        { page_name: "home", key: "banner_description", value: "The most advanced solution for your business needs." },
+        { page_name: "about", key: "company_description", value: "We are a leading tech company." },
+      ]);
+    }
 
     res.status(200).json({
       success: true,

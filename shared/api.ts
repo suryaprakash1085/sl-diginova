@@ -37,6 +37,7 @@ export interface ContactMessage {
 
 export interface Setting {
   id?: number;
+  page_name: string;
   key: string;
   value?: string;
   updatedAt?: string;

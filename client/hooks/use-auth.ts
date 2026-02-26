@@ -7,25 +7,27 @@ export function useAuth() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = async (username: string, password: string): Promise<boolean> => {
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      const data: AuthResponse = await res.json();
-      if (data.user) {
-        setUser(data.user);
-        localStorage.setItem("auth_user", JSON.stringify(data.user));
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error(err);
-      return false;
+ const login = async (username: string, password: string) => {
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // store user if needed
+      setUser(data.data);
+      return true; // 🔥 VERY IMPORTANT
     }
-  };
+
+    return false;
+  } catch (err) {
+    return false;
+  }
+};
 
   const logout = () => {
     setUser(null);

@@ -31,7 +31,8 @@ export default function ProductsManagement() {
     queryKey: ["products"],
     queryFn: async () => {
       const res = await fetch("/api/products");
-      return res.json();
+      const json = await res.json();
+      return json.data || [];
     },
   });
 

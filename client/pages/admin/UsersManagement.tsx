@@ -26,7 +26,8 @@ export default function UsersManagement() {
     queryKey: ["users"],
     queryFn: async () => {
       const res = await fetch("/api/users");
-      return res.json();
+      const json = await res.json();
+      return json.data || [];
     },
   });
 
@@ -44,6 +45,23 @@ export default function UsersManagement() {
       setIsOpen(false);
       resetForm();
       toast.success("User created successfully!");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (updatedUser: User) => {
+      const res = await fetch(`/api/users/${updatedUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUser),
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      setIsOpen(false);
+      resetForm();
+      toast.success("User updated successfully!");
     },
   });
 
@@ -95,7 +113,7 @@ export default function UsersManagement() {
     }
 
     if (editingUser) {
-      toast.info("Update logic would go here.");
+      await updateMutation.mutateAsync({ ...editingUser, username, role, ...(password ? { password } : {}) } as User);
     } else {
       await createMutation.mutateAsync({ username, password, role });
     }
@@ -237,7 +255,7 @@ export default function UsersManagement() {
             title={editingUser ? "Edit User" : "Create New User"}
             onSave={handleSubmit}
             saveLabel={editingUser ? "Update User" : "Create User"}
-            isLoading={createMutation.isPending}
+            isLoading={createMutation.isPending || updateMutation.isPending}
           >
             <div className="space-y-4">
               <div className="space-y-2">

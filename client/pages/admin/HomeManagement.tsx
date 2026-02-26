@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, Trash2, Pencil, Home } from "lucide-react";
+import { Plus, Trash2, Pencil, Home, Globe } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ResponsiveTable, TableColumn } from "@/components/ResponsiveTable";
 import { ResponsiveDialog } from "@/components/ResponsiveDialog";
+import { Badge } from "@/components/ui/badge";
 
 const HOME_CORE_KEYS = ["banner_title", "banner_description", "button_text"];
 
@@ -18,31 +19,37 @@ export default function HomeManagement() {
   const [isOpen, setIsOpen] = useState(false);
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
+  const [pageName, setPageName] = useState("home");
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
 
-  const homeSettings = settings.filter(s => HOME_CORE_KEYS.includes(s.key) || s.key.startsWith("home_"));
+  const homeSettings = settings.filter(s => s.page_name === "home" || HOME_CORE_KEYS.includes(s.key) || s.key.startsWith("home_"));
 
-  const handleDelete = async (key: string) => {
-    if (confirm(`Are you sure you want to delete "${key}"?`)) {
-      await fetch(`/api/settings/${key}`, { method: "DELETE" });
+  const handleDelete = async (id: number) => {
+    if (confirm(`Are you sure you want to delete this setting?`)) {
+      await fetch(`/api/settings/${id}`, { method: "DELETE" });
       toast.success("Content deleted");
-      window.location.reload(); 
+      window.location.reload();
     }
   };
 
   const handleSave = () => {
-    updateSettings({ key: newKey, value: newValue });
+    updateSettings({ key: newKey, value: newValue, page_name: pageName });
     setIsOpen(false);
     setNewKey("");
     setNewValue("");
+    setPageName("home");
+    setEditingId(null);
     setEditingKey(null);
     toast.success("Home content saved");
   };
 
-  const handleEdit = (key: string, value: string) => {
-    setNewKey(key);
-    setNewValue(value);
-    setEditingKey(key);
+  const handleEdit = (item: any) => {
+    setNewKey(item.key);
+    setNewValue(item.value);
+    setPageName(item.page_name || "home");
+    setEditingId(item.id);
+    setEditingKey(item.key);
     setIsOpen(true);
   };
 
@@ -50,11 +57,20 @@ export default function HomeManagement() {
     await handleSave();
   };
 
-  const columns: TableColumn<{ key: string; value: string }> [] = [
+  const columns: TableColumn<any> [] = [
+    {
+      key: "page_name",
+      label: "Page",
+      render: (item) => (
+        <Badge variant="outline" className="gap-1">
+          <Globe className="w-3 h-3" /> {item.page_name}
+        </Badge>
+      ),
+    },
     {
       key: "key",
       label: "Key",
-      className: "w-[250px]",
+      className: "w-[200px]",
       render: (item) => (
         <span className="font-mono text-sm font-semibold text-primary">{item.key}</span>
       ),
@@ -76,7 +92,7 @@ export default function HomeManagement() {
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-slate-400 hover:text-primary"
-            onClick={() => handleEdit(item.key, item.value)}
+            onClick={() => handleEdit(item)}
           >
             <Pencil className="w-4 h-4" />
           </Button>
@@ -84,7 +100,7 @@ export default function HomeManagement() {
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-slate-400 hover:text-red-600"
-            onClick={() => handleDelete(item.key)}
+            onClick={() => handleDelete(item.id)}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -93,17 +109,18 @@ export default function HomeManagement() {
     },
   ];
 
-  const renderMobileCard = (item: { key: string; value: string }) => (
+  const renderMobileCard = (item: any) => (
     <div className="bg-white rounded-lg border p-4 space-y-3">
-      <div>
+      <div className="flex justify-between items-start">
         <p className="font-mono text-sm font-semibold text-primary">{item.key}</p>
-        <p className="text-slate-600 text-sm whitespace-pre-wrap mt-2 line-clamp-3">{item.value}</p>
+        <Badge variant="outline" className="scale-75 origin-top-right">{item.page_name}</Badge>
       </div>
+      <p className="text-slate-600 text-sm whitespace-pre-wrap mt-2 line-clamp-3">{item.value}</p>
       <div className="flex gap-2 justify-end">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => handleEdit(item.key, item.value)}
+          onClick={() => handleEdit(item)}
         >
           <Pencil className="w-4 h-4" />
         </Button>
@@ -111,7 +128,7 @@ export default function HomeManagement() {
           variant="outline"
           size="sm"
           className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          onClick={() => handleDelete(item.key)}
+          onClick={() => handleDelete(item.id)}
         >
           <Trash2 className="w-4 h-4" />
         </Button>
@@ -137,20 +154,30 @@ export default function HomeManagement() {
               if (!val) {
                 setNewKey("");
                 setNewValue("");
+                setPageName("home");
+                setEditingId(null);
                 setEditingKey(null);
               }
             }}
             trigger={
               <Button className="gap-2 w-full sm:w-auto">
-                <Plus className="w-4 h-4" /> Add Dynamic Key
+                <Plus className="w-4 h-4" /> Add Home Content
               </Button>
             }
-            title={editingKey ? "Edit Key" : "Add New Key"}
-            description="Use keys in your frontend to fetch this content dynamically."
+            title={editingKey ? "Edit Content" : "Add New Content"}
+            description="Manage dynamic content specifically for the home page."
             onSave={handleSaveDialog}
-            saveLabel={editingKey ? "Update Key" : "Save Key"}
+            saveLabel={editingKey ? "Update Content" : "Save Content"}
           >
             <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Page Name</Label>
+                <Input
+                  value={pageName}
+                  onChange={(e) => setPageName(e.target.value)}
+                  placeholder="e.g. home"
+                />
+              </div>
               <div className="space-y-2">
                 <Label>Key Name (e.g. banner_title, home_feature1_desc)</Label>
                 <Input
