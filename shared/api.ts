@@ -36,8 +36,10 @@ export interface ContactMessage {
 }
 
 export interface Setting {
+  id?: number;
   key: string;
-  value: string;
+  value?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {

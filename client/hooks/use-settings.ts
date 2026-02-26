@@ -10,7 +10,8 @@ export function useSettings() {
     queryKey: ["settings"],
     queryFn: async () => {
       const res = await fetch("/api/settings");
-      return res.json();
+      const json = await res.json();
+      return json.data || json || DEFAULT_SETTINGS;
     },
   });
 
@@ -18,11 +19,13 @@ export function useSettings() {
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (newSettings: Setting | Setting[]) => {
-      await fetch("/api/settings", {
+      const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newSettings),
       });
+      if (!res.ok) throw new Error("Failed to update settings");
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["settings"] });

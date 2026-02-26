@@ -1,97 +1,30 @@
-import { User, Product, ContactMessage, Setting } from "@shared/api";
+import dotenv from "dotenv";
+import knex from "knex";
 
-// Simple in-memory database
-export const db = {
-  users: [] as User[],
-  products: [] as Product[],
-  messages: [] as ContactMessage[],
-  settings: [] as Setting[],
-};
+dotenv.config();
 
-// Initial data (Seed)
-db.users.push({
-  id: "1",
-  username: "admin",
-  role: "admin",
-  createdAt: new Date().toISOString(),
-}, {
-  id: "2",
-  username: "jane_doe",
-  role: "user",
-  createdAt: new Date().toISOString(),
+// ================= KNEX CONFIG =================
+export const db = knex({
+  client: "mysql2",
+  connection: {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  },
+  pool: {
+    min: 2,
+    max: 10,
+  },
 });
 
-// Seed Products
-db.products.push({
-  id: "1",
-  icon: "car",
-  name: "AutoX",
-  subtitle: "Car Service & Workshop Management Platform",
-  description: "AutoX is a platform that helps manage car service bookings, workshop operations and customer records.",
-  features: "Online Booking\nInventory Management\nService Tracking",
-  tech: "Node.js, React.js, MySQL",
-  status: "Active",
-  category: "Web Application",
-  dateAdded: "2026-02-23T09:34:06.000Z",
-  image: "autox.jpg"
-}, {
-  id: "p2",
-  name: "Smart Watch",
-  image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500",
-  description: "Stay connected and track your fitness with our smart watch.",
-  price: 199,
-  status: "Active",
-  category: "Wearables",
-  dateAdded: new Date().toISOString()
-});
-
-// Seed Contact Messages
-db.messages.push({
-  id: "m1",
-  name: "John Smith",
-  email: "john@example.com",
-  message: "I'm interested in your premium headphones. Do you have any discounts available?",
-  date: new Date().toISOString(),
-});
-
-// Default settings
-const defaultSettings: Setting[] = [
-  { key: "banner_title", value: "Welcome to Our Store" },
-  { key: "banner_description", value: "Discover amazing products and great deals." },
-  { key: "button_text", value: "Shop Now" },
-  // About page keys
-  { key: "company_description", value: "We are a leading technology company focused on delivering high-quality products to our customers." },
-  { key: "mission", value: "To innovate and provide the best user experience through our products." },
-  { key: "vision", value: "To become the global standard for quality and reliability in the tech industry." },
-  { key: "team_details", value: "Our team consists of passionate engineers and designers from all over the world." },
-  // Global customization
-  { key: "company_name", value: "Fusion Brand" },
-  { key: "company_email", value: "contact@mybrand.com" },
-  { key: "company_phone", value: "+1 234 567 890" },
-  { key: "company_address", value: "123 Street, City, Country" },
-  { key: "primary_color", value: "#3b82f6" },
-  { key: "secondary_color", value: "#6366f1" },
-  { key: "button_color", value: "#3b82f6" },
-  { key: "header_bg_color", value: "#ffffff" },
-  { key: "footer_bg_color", value: "#f8fafc" },
-  { key: "text_color", value: "#0f172a" },
-  { key: "font_family", value: "Inter" },
-  { key: "font_size", value: "16px" },
-  { key: "show_top_bar", value: "true" },
-  { key: "show_footer", value: "true" },
-  { key: "sticky_header", value: "true" },
-  { key: "dark_mode", value: "false" },
-];
-
-db.settings.push(...defaultSettings);
-
-// Helpers
-export const getSetting = (key: string) => db.settings.find(s => s.key === key)?.value;
-export const updateSetting = (key: string, value: string) => {
-  const index = db.settings.findIndex(s => s.key === key);
-  if (index !== -1) {
-    db.settings[index].value = value;
-  } else {
-    db.settings.push({ key, value });
+// ================= DB CONNECTION TEST =================
+export async function connectDB() {
+  try {
+    await db.raw("SELECT 1");
+    console.log("✅ Database Connected Successfully");
+  } catch (error) {
+    console.warn("⚠️ Database Connection Failed:", error instanceof Error ? error.message : error);
+    console.warn("⚠️ Server will run without database. Configure DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME to enable database features.");
   }
-};
+}

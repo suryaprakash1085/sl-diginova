@@ -6,7 +6,9 @@ export function ThemeInjector() {
 
   useEffect(() => {
     const root = document.documentElement;
-    
+
+    if (!Array.isArray(settings)) return;
+
     settings.forEach((setting) => {
       if (setting.key === "primary_color") {
         // Convert hex to HSL if possible or just use hex
