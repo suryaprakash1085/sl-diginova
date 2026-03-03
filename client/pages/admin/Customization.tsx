@@ -201,47 +201,22 @@ export default function Customization() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Background Image</Label>
-                      <div className="flex flex-col gap-4">
-                        {localSettings.bg_image && (
-                          <div className="relative w-full h-40 rounded-lg overflow-hidden border bg-slate-100">
-                            <img src={localSettings.bg_image} alt="Background Preview" className="w-full h-full object-cover" />
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-2 right-2 h-8 w-8"
-                              onClick={() => handleChange("bg_image", "")}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        )}
-                        <div className="flex gap-2">
-                          <Label htmlFor="bg-upload" className="cursor-pointer">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-sm font-medium">
-                              <Save className="w-4 h-4 rotate-180" /> Upload Image
-                            </div>
-                            <input id="bg-upload" type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, "bg_image")} />
-                          </Label>
-                        </div>
-                        <div className="relative">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                          </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-2 text-muted-foreground">Or provide URL</span>
-                          </div>
-                        </div>
-                        <Input
-                          value={localSettings.bg_image || ""}
-                          onChange={(e) => handleChange("bg_image", e.target.value)}
-                          placeholder="https://example.com/image.jpg"
-                        />
-                      </div>
-                    </div>
-                  </div>
+             <div className="relative w-full h-64 rounded-lg overflow-hidden border bg-slate-100">
+  <img
+    src={localSettings.bg_image}
+    alt="Background Preview"
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+
+  <Button
+    variant="destructive"
+    size="icon"
+    className="absolute top-2 right-2 h-8 w-8"
+    onClick={() => handleChange("bg_image", "")}
+  >
+    <Trash2 className="w-4 h-4" />
+  </Button>
+</div>
                 )}
               </CardContent>
             </Card>

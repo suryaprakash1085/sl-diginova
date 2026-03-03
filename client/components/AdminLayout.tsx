@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Settings,
   LogOut,
+  Server ,
   ChevronRight,
   Menu,
   X
@@ -22,8 +23,10 @@ const menuItems = [
   { label: "Users", icon: Users, href: "/admin/users" },
   { label: "Home Page", icon: Home, href: "/admin/home" },
   { label: "About Page", icon: Info, href: "/admin/about" },
+  { label: "Services", icon: Server, href: "/admin/services" },
   { label: "Products", icon: Package, href: "/admin/products" },
   { label: "Messages", icon: MessageSquare, href: "/admin/messages" },
+  
   { label: "Customization", icon: Settings, href: "/admin/customization" },
 ];
 

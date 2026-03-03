@@ -5,28 +5,28 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, Trash2, Pencil, Home, Globe } from "lucide-react";
+import { Plus, Trash2, Pencil, Server , Globe } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ResponsiveTable, TableColumn } from "@/components/ResponsiveTable";
 import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import { Badge } from "@/components/ui/badge";
 
-const HOME_CORE_KEYS = ["banner_title", "banner_description", "button_text"];
+const SERVICES_CORE_KEYS = ["banner_title", "banner_description", "button_text"];
 
-export default function HomeManagement() {
+export default function servicesManagement() {
   const { settings, updateSettings, isLoading } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
-  const [pageName, setPageName] = useState("home");
+  const [pageName, setPageName] = useState("Services");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
 
-const homeSettings = settings.filter(
+const servicesSettings = settings.filter(
   (s) =>
-    s.page_name === "home" ||
-    s.page_name?.startsWith("home_")
+    s.page_name === "Services" ||
+    s.page_name?.startsWith("Services_")
 );
 
 
@@ -43,16 +43,16 @@ const homeSettings = settings.filter(
     setIsOpen(false);
     setNewKey("");
     setNewValue("");
-    setPageName("home");
+    setPageName("Services");
     setEditingId(null);
     setEditingKey(null);
-    toast.success("Home content saved");
+    toast.success("Services content saved");
   };
 
   const handleEdit = (item: any) => {
     setNewKey(item.key);
     setNewValue(item.value);
-    setPageName(item.page_name || "home");
+    setPageName(item.page_name || "Services");
     setEditingId(item.id);
     setEditingKey(item.key);
     setIsOpen(true);
@@ -147,9 +147,9 @@ const homeSettings = settings.filter(
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-              <Home className="w-8 h-8 text-primary" /> Home Page Management
+              <Server  className="w-8 h-8 text-primary" /> Services Page Management
             </h2>
-            <p className="text-slate-500 mt-1">Manage all dynamic text and images on the landing page.</p>
+            <p className="text-slate-500 mt-1">Manage all dynamic text and images on the Services page.</p>
           </div>
 
           <ResponsiveDialog
@@ -159,18 +159,18 @@ const homeSettings = settings.filter(
               if (!val) {
                 setNewKey("");
                 setNewValue("");
-                setPageName("home");
+                setPageName("Services");
                 setEditingId(null);
                 setEditingKey(null);
               }
             }}
             trigger={
               <Button className="gap-2 w-full sm:w-auto">
-                <Plus className="w-4 h-4" /> Add Home Content
+                <Plus className="w-4 h-4" /> Add Services Content
               </Button>
             }
             title={editingKey ? "Edit Content" : "Add New Content"}
-            description="Manage dynamic content specifically for the home page."
+            description="Manage dynamic content specifically for the Services page."
             onSave={handleSaveDialog}
             saveLabel={editingKey ? "Update Content" : "Save Content"}
           >
@@ -180,11 +180,11 @@ const homeSettings = settings.filter(
                 <Input
                   value={pageName}
                   onChange={(e) => setPageName(e.target.value)}
-                  placeholder="e.g. home"
+                  placeholder="e.g. Services"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Key Name (e.g. banner_title, home_feature1_desc)</Label>
+                <Label>Key Name (e.g. banner_title, Services_feature1_desc)</Label>
                 <Input
                   value={newKey}
                   onChange={(e) => setNewKey(e.target.value)}
@@ -207,16 +207,16 @@ const homeSettings = settings.filter(
 
         <Card>
           <CardHeader>
-            <CardTitle>Home Page Content Keys</CardTitle>
-            <CardDescription>Manage your landing page's dynamic segments using key-value storage.</CardDescription>
+            <CardTitle>Services Page Content Keys</CardTitle>
+            <CardDescription>Manage your Services page's dynamic segments using key-value storage.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <ResponsiveTable
               columns={columns}
-              data={homeSettings}
+              data={servicesSettings}
               keyField="key"
               isLoading={isLoading}
-              isEmpty={homeSettings.length === 0}
+              isEmpty={servicesSettings.length === 0}
               emptyMessage="No content found"
               renderMobileCard={renderMobileCard}
             />

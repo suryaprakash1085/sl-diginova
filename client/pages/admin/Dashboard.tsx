@@ -59,24 +59,43 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3].map((_, i) => (
-                  <div key={i} className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">
-                      {i + 1}
-                    </div>
-                    <div className="flex-grow">
-                      <p className="text-sm font-medium text-slate-900">New user registered</p>
-                      <p className="text-xs text-slate-500">2 hours ago</p>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <ArrowUpRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
+           <CardContent>
+  <div className="space-y-4">
+    {[
+      { id: 1, type: "user", text: "New user registered" },
+      { id: 2, type: "product", text: "New product added", },
+      { id: 3, type: "message", text: "New contact message"},
+    ].map((activity, i) => {
+      // Determine route based on activity type
+      let route = "";
+      if (activity.type === "user") route = "/admin/users";
+      if (activity.type === "product") route = "/admin/products";
+      if (activity.type === "message") route = "/admin/messages";
+
+      return (
+        <div
+          key={i}
+          className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">
+            {i + 1}
+          </div>
+          <div className="flex-grow">
+            <p className="text-sm font-medium text-slate-900">{activity.text}</p>
+            <p className="text-xs text-slate-500">{activity.time}</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.location.href = route} // navigate to correct route
+          >
+            <ArrowUpRight className="w-4 h-4" />
+          </Button>
+        </div>
+      );
+    })}
+  </div>
+</CardContent>
           </Card>
 
           <Card className="col-span-3 border-slate-200/60 shadow-sm">
